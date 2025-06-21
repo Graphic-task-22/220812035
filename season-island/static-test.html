@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>静态角色测试</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        
+        #gameContainer {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        
+        .ui-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 1000;
+            min-width: 300px;
+        }
+        
+        .ui-panel h2 {
+            margin: 0 0 15px 0;
+            color: #4CAF50;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .control-group select {
+            width: 100%;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            background: #333;
+            color: white;
+        }
+        
+        .info-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            z-index: 1000;
+            font-size: 14px;
+        }
+        
+        .info-item {
+            margin-bottom: 8px;
+        }
+        
+        .status {
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
+        .status.success {
+            background: #4CAF50;
+        }
+        
+        .status.error {
+            background: #f44336;
+        }
+        
+        .status.warning {
+            background: #ff9800;
+        }
+        
+        .instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            z-index: 1000;
+            max-width: 400px;
+        }
+        
+        .instructions h3 {
+            margin: 0 0 10px 0;
+            color: #4CAF50;
+        }
+        
+        .instructions ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div class="ui-panel">
+            <h2>🌴 四季海岛 - 静态角色测试</h2>
+            
+            <div class="control-group">
+                <label for="seasonSelect">季节:</label>
+                <select id="seasonSelect">
+                    <option value="spring">春季</option>
+                    <option value="summer">夏季</option>
+                    <option value="autumn">秋季</option>
+                    <option value="winter">冬季</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="timeSelect">时间:</label>
+                <select id="timeSelect">
+                    <option value="morning">早晨</option>
+                    <option value="noon">中午</option>
+                    <option value="evening">傍晚</option>
+                    <option value="night">夜晚</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="weatherSelect">天气:</label>
+                <select id="weatherSelect">
+                    <option value="sunny">晴天</option>
+                    <option value="cloudy">多云</option>
+                    <option value="rainy">雨天</option>
+                    <option value="snowy">雪天</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="info-panel">
+            <h3>📊 状态信息</h3>
+            <div class="info-item">
+                角色位置: <span id="playerPos">加载中...</span>
+            </div>
+            <div class="info-item">
+                地面检测: <span id="groundStatus" class="status warning">检测中...</span>
+            </div>
+            <div class="info-item">
+                移动状态: <span id="moveStatus" class="status">静止</span>
+            </div>
+            <div class="info-item">
+                FPS: <span id="fps">--</span>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>🎮 操作说明</h3>
+            <ul>
+                <li><strong>WASD</strong> - 移动角色</li>
+                <li><strong>空格</strong> - 跳跃</li>
+                <li><strong>Shift</strong> - 加速移动</li>
+                <li><strong>鼠标</strong> - 视角控制</li>
+                <li><strong>F1</strong> - 场景信息</li>
+                <li><strong>F2</strong> - 角色信息</li>
+                <li><strong>F3</strong> - 性能报告</li>
+            </ul>
+        </div>
+    </div>
+
+    <script type="module">
+        import { GameScene } from './src/GameScene.js';
+        
+        // 全局变量
+        let gameScene = null;
+        let frameCount = 0;
+        let lastTime = performance.now();
+        
+        // 更新状态信息
+        function updateStatus() {
+            if (!gameScene || !gameScene.player) return;
+            
+            // 更新角色位置
+            const pos = gameScene.player.position;
+            document.getElementById('playerPos').textContent = 
+                `X: ${pos.x.toFixed(2)}, Y: ${pos.y.toFixed(2)}, Z: ${pos.z.toFixed(2)}`;
+            
+            // 更新地面检测状态
+            const groundStatus = document.getElementById('groundStatus');
+            if (gameScene.playerOnGround) {
+                groundStatus.textContent = '在地面';
+                groundStatus.className = 'status success';
+            } else {
+                groundStatus.textContent = '悬空';
+                groundStatus.className = 'status error';
+            }
+            
+            // 更新移动状态
+            const moveStatus = document.getElementById('moveStatus');
+            if (gameScene.playerDirection && gameScene.playerDirection.length() > 0) {
+                moveStatus.textContent = '移动中';
+                moveStatus.className = 'status success';
+            } else {
+                moveStatus.textContent = '静止';
+                moveStatus.className = 'status';
+            }
+            
+            // 更新FPS
+            frameCount++;
+            const currentTime = performance.now();
+            if (currentTime - lastTime >= 1000) {
+                const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+                document.getElementById('fps').textContent = fps;
+                frameCount = 0;
+                lastTime = currentTime;
+            }
+        }
+        
+        // 初始化游戏
+        async function initGame() {
+            try {
+                console.log('开始初始化静态角色测试...');
+                
+                gameScene = new GameScene();
+                await gameScene.init();
+                gameScene.setupControls();
+                gameScene.start();
+                
+                // 启动状态更新
+                setInterval(updateStatus, 100);
+                
+                console.log('静态角色测试初始化完成');
+                
+            } catch (error) {
+                console.error('静态角色测试初始化失败:', error);
+                document.body.innerHTML = `
+                    <div style="color: white; padding: 50px; text-align: center;">
+                        <h1>❌ 初始化失败</h1>
+                        <p>错误信息: ${error.message}</p>
+                        <p>请检查控制台获取详细信息</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // 页面加载完成后初始化
+        window.addEventListener('load', initGame);
+        
+        // 调试快捷键
+        document.addEventListener('keydown', (event) => {
+            if (event.code === 'F1') {
+                event.preventDefault();
+                console.log('=== 场景信息 ===');
+                console.log('场景对象数量:', gameScene.scene.children.length);
+                console.log('地面对象数量:', gameScene.groundObjects.length);
+                console.log('碰撞对象数量:', gameScene.collisionObjects.length);
+            }
+            if (event.code === 'F2') {
+                event.preventDefault();
+                console.log('=== 角色信息 ===');
+                if (gameScene.player) {
+                    console.log('角色位置:', gameScene.player.position);
+                    console.log('角色旋转:', gameScene.player.rotation);
+                    console.log('角色缩放:', gameScene.player.scale);
+                    console.log('在地面:', gameScene.playerOnGround);
+                }
+            }
+            if (event.code === 'F3') {
+                event.preventDefault();
+                console.log('=== 性能报告 ===');
+                if (gameScene.performanceMonitor) {
+                    console.log(gameScene.performanceMonitor.getPerformanceReport());
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

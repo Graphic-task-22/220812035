@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目检查页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #fff;
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .success {
+            background: rgba(76, 175, 80, 0.3);
+            border: 2px solid #4CAF50;
+        }
+        .error {
+            background: rgba(244, 67, 54, 0.3);
+            border: 2px solid #F44336;
+        }
+        .info {
+            background: rgba(33, 150, 243, 0.3);
+            border: 2px solid #2196F3;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 10px;
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: transform 0.3s ease;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+        }
+        .file-list {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .file-list h3 {
+            margin-top: 0;
+        }
+        .file-item {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌴 四季海岛项目检查</h1>
+        
+        <div class="status success">
+            ✅ 项目服务器运行正常 (端口 5173)
+        </div>
+        
+        <div class="status info">
+            📁 当前项目: season-island
+        </div>
+        
+        <div class="file-list">
+            <h3>📂 项目文件结构:</h3>
+            <div class="file-item">📄 index.html - 主页面</div>
+            <div class="file-item">📄 static-test.html - 静态角色测试</div>
+            <div class="file-item">📄 simple-test.html - 简化测试页面</div>
+            <div class="file-item">📄 test.html - 测试页面</div>
+            <div class="file-item">📄 diagnose.html - 诊断页面</div>
+            <div class="file-item">📁 src/ - 源代码目录</div>
+            <div class="file-item">📁 src/models/ - 3D模型文件</div>
+        </div>
+        
+        <div class="status info">
+            🎮 可用的测试页面:
+        </div>
+        
+        <div style="text-align: center; margin: 20px 0;">
+            <a href="http://localhost:5173/index.html" class="button" target="_blank">
+                🏠 主页面
+            </a>
+            <a href="http://localhost:5173/static-test.html" class="button" target="_blank">
+                🎯 静态角色测试
+            </a>
+            <a href="http://localhost:5173/simple-test.html" class="button" target="_blank">
+                🧪 简化测试
+            </a>
+            <a href="http://localhost:5173/diagnose.html" class="button" target="_blank">
+                🔍 诊断页面
+            </a>
+        </div>
+        
+        <div class="status success">
+            💡 建议: 先使用诊断页面检查环境和文件，然后用简化测试页面验证功能
+        </div>
+        
+        <div class="status info">
+            🎯 项目目标: 使用Three.js制作四季海岛3D游戏场景，包含人物行走、碰撞检测、摄像机跟随等功能
+        </div>
+    </div>
+
+    <script>
+        // 检查Three.js是否可用
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch('http://localhost:5173/src/universal.js');
+                if (response.ok) {
+                    console.log('✅ 项目文件加载正常');
+                } else {
+                    console.log('❌ 项目文件加载失败');
+                }
+            } catch (error) {
+                console.log('❌ 无法连接到项目服务器');
+            }
+        });
+    </script>
+</body>
+</html> 

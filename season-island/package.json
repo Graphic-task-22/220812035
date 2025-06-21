@@ -1,0 +1,15 @@
+{
+  "name": "season-island",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite"
+  },
+  "devDependencies": {
+    "vite": "^6.3.5"
+  },
+  "dependencies": {
+    "three": "^0.177.0"
+  }
+}

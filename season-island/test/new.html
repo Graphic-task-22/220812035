@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>四季小岛</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* 全局样式 */
+    body { 
+      margin: 0; 
+      overflow: hidden;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    /* 按钮容器 */
+    #seasonButtons {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      gap: 15px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      padding: 15px 20px;
+      border-radius: 50px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      transition: all 0.5s ease;
+    }
+    
+    /* 鼠标悬停时按钮容器效果 */
+    #seasonButtons:hover {
+      background: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.3);
+    }
+
+    
+    
+    /* 季节按钮 */
+    .season-btn {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    /* 按钮悬停效果 */
+    .season-btn:hover {
+      transform: translateY(-8px) scale(1.05);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* 按钮图标 */
+    .season-btn i {
+      font-size: 24px;
+      margin-bottom: 6px;
+      transition: all 0.3s ease;
+    }
+    
+    /* 按钮激活状态 */
+    .season-btn.active {
+      transform: translateY(-10px) scale(1.1);
+      box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.4),
+                  0 15px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* 特定季节按钮样式 */
+    #springBtn {
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      text-shadow: 0 1px 2px rgba(150, 60, 90, 0.5);
+    }
+    
+    #summerBtn {
+      background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+      text-shadow: 0 1px 2px rgba(30, 100, 150, 0.5);
+    }
+    
+    #autumnBtn {
+      background: linear-gradient(135deg, #f6d365, #fda085);
+      text-shadow: 0 1px 2px rgba(150, 80, 30, 0.5);
+    }
+    
+    #winterBtn {
+      background: linear-gradient(135deg, #e6e9f0, #eef1f5);
+      color: #4a6fa5;
+      text-shadow: 0 1px 2px rgba(100, 120, 180, 0.3);
+    }
+    
+    /* 按钮装饰效果 */
+    .season-btn::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    
+    .season-btn:hover::before {
+      opacity: 1;
+    }
+    
+    /* 季节名称标签 */
+    .season-label {
+      position: absolute;
+      bottom: -25px;
+      font-size: 14px;
+      opacity: 0.8;
+      transition: all 0.3s ease;
+    }
+    
+    .season-btn:hover .season-label {
+      opacity: 1;
+      transform: translateY(-3px);
+    }
+    
+    /* 标题样式 */
+    #title {
+      position: absolute;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      font-size: 32px;
+      font-weight: 700;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      letter-spacing: 2px;
+      z-index: 10;
+      opacity: 0.9;
+    }
+
+    /* 新增时间按钮容器 */
+    #timeButtons {
+      position: absolute;
+      top: 30px;
+      right: 30px;
+      z-index: 10;
+      display: flex;
+      gap: 15px;
+    }
+    
+    /* 新增下雨按钮容器 */
+    #rainButtons {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      z-index: 10;
+      display: flex;
+      gap: 15px;
+    }
+    
+    /* 时间按钮样式 */
+    .time-btn {
+      width: 100px;
+      height: 40px;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    /* 下雨按钮样式 */
+    .rain-btn {
+      width: 100px;
+      height: 40px;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      background: rgba(30, 144, 255, 0.3);
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(135, 206, 250, 0.4);
+    }
+    
+    /* 按钮悬停效果 */
+    .time-btn:hover, .rain-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* 按钮激活状态 */
+    .time-btn.active, .rain-btn.active {
+      transform: translateY(-3px);
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5),
+                  0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* 特定按钮样式 */
+    #morningBtn {
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+    }
+    
+    #nightBtn {
+      background: linear-gradient(135deg, #4b0082, #191970);
+    }
+    
+    /* 按钮图标 */
+    .time-btn i, .rain-btn i {
+      margin-right: 8px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="title">四季小岛</h1>
+
+  <!-- 新增时间按钮 -->
+  <div id="timeButtons">
+    <button id="morningBtn" class="time-btn" data-time="morning">
+      <i class="fas fa-sun"></i>
+      早上
+    </button>
+    
+    <!-- 新增黄昏按钮 -->
+  <button id="duskBtn" class="time-btn" data-time="dusk">
+    <i class="fas fa-sunset"></i>
+    黄昏
+  </button>
+  
+    <button id="nightBtn" class="time-btn" data-time="night">
+      <i class="fas fa-moon"></i>
+      晚上
+    </button>
+  </div>
+  
+  <!-- 新增下雨按钮 -->
+  <div id="rainButtons">
+    <button id="rainBtn" class="rain-btn" data-rain="rain">
+      <i class="fas fa-cloud-rain"></i>
+      下雨
+    </button>
+    
+  </div>
+  
+  <div id="seasonButtons">
+    <button id="springBtn" class="season-btn" data-season="spring">
+      <i class="fas fa-seedling"></i>
+      春
+      <span class="season-label">Spring</span>
+    </button>
+    
+    <button id="summerBtn" class="season-btn" data-season="summer">
+      <i class="fas fa-sun"></i>
+      夏
+      <span class="season-label">Summer</span>
+    </button>
+    
+    <button id="autumnBtn" class="season-btn" data-season="autumn">
+      <i class="fas fa-leaf"></i>
+      秋
+      <span class="season-label">Autumn</span>
+    </button>
+    
+    <button id="winterBtn" class="season-btn" data-season="winter">
+      <i class="fas fa-snowflake"></i>
+      冬
+      <span class="season-label">Winter</span>
+    </button>
+  </div>
+  
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

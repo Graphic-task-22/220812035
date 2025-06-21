@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>问题诊断 - 四季海岛</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .diagnostic-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid;
+        }
+        .success { background: #d4edda; border-color: #28a745; color: #155724; }
+        .error { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        .warning { background: #fff3cd; border-color: #ffc107; color: #856404; }
+        .info { background: #d1ecf1; border-color: #17a2b8; color: #0c5460; }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .log-area {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>四季海岛 - 问题诊断工具</h1>
+    
+    <div class="diagnostic-panel">
+        <h2>系统检查</h2>
+        <div id="systemCheck"></div>
+        <button class="test-button" onclick="runSystemCheck()">运行系统检查</button>
+    </div>
+    
+    <div class="diagnostic-panel">
+        <h2>文件路径检查</h2>
+        <div id="fileCheck"></div>
+        <button class="test-button" onclick="checkFilePaths()">检查文件路径</button>
+    </div>
+    
+    <div class="diagnostic-panel">
+        <h2>模型加载测试</h2>
+        <div id="modelTest"></div>
+        <button class="test-button" onclick="testModelLoading()">测试模型加载</button>
+    </div>
+    
+    <div class="diagnostic-panel">
+        <h2>控制台日志</h2>
+        <div id="logArea" class="log-area"></div>
+        <button class="test-button" onclick="clearLog()">清空日志</button>
+    </div>
+    
+    <div class="diagnostic-panel">
+        <h2>快速修复</h2>
+        <button class="test-button" onclick="openSimpleTest()">打开简化测试</button>
+        <button class="test-button" onclick="openMainPage()">打开主页面</button>
+        <button class="test-button" onclick="openTestPage()">打开测试页面</button>
+    </div>
+
+    <script>
+        // 日志系统
+        function log(message, type = 'info') {
+            const logArea = document.getElementById('logArea');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            logArea.appendChild(logEntry);
+            logArea.scrollTop = logArea.scrollHeight;
+            console.log(message);
+        }
+        
+        function clearLog() {
+            document.getElementById('logArea').innerHTML = '';
+        }
+        
+        // 系统检查
+        function runSystemCheck() {
+            const systemCheck = document.getElementById('systemCheck');
+            systemCheck.innerHTML = '';
+            
+            // 检查WebGL支持
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            
+            if (gl) {
+                addResult(systemCheck, 'success', 'WebGL支持: 正常');
+                log('WebGL支持正常');
+            } else {
+                addResult(systemCheck, 'error', 'WebGL支持: 不支持');
+                log('WebGL不支持');
+            }
+            
+            // 检查浏览器
+            const userAgent = navigator.userAgent;
+            addResult(systemCheck, 'info', `浏览器: ${userAgent}`);
+            log(`浏览器信息: ${userAgent}`);
+            
+            // 检查屏幕分辨率
+            addResult(systemCheck, 'info', `屏幕分辨率: ${screen.width}x${screen.height}`);
+            log(`屏幕分辨率: ${screen.width}x${screen.height}`);
+            
+            // 检查内存
+            if (navigator.deviceMemory) {
+                addResult(systemCheck, 'info', `设备内存: ${navigator.deviceMemory}GB`);
+                log(`设备内存: ${navigator.deviceMemory}GB`);
+            }
+            
+            // 检查网络连接
+            if (navigator.connection) {
+                addResult(systemCheck, 'info', `网络类型: ${navigator.connection.effectiveType}`);
+                log(`网络类型: ${navigator.connection.effectiveType}`);
+            }
+        }
+        
+        // 文件路径检查
+        function checkFilePaths() {
+            const fileCheck = document.getElementById('fileCheck');
+            fileCheck.innerHTML = '';
+            
+            const files = [
+                './src/models/Assets/role.glb',
+                './src/models/statan/shatan.glb',
+                './src/GameScene.js',
+                './src/animation.js',
+                './src/ParticleSystem.js',
+                './src/utils.js'
+            ];
+            
+            files.forEach(file => {
+                fetch(file, { method: 'HEAD' })
+                    .then(response => {
+                        if (response.ok) {
+                            addResult(fileCheck, 'success', `${file}: 存在`);
+                            log(`${file} 文件存在`);
+                        } else {
+                            addResult(fileCheck, 'error', `${file}: 不存在 (${response.status})`);
+                            log(`${file} 文件不存在: ${response.status}`);
+                        }
+                    })
+                    .catch(error => {
+                        addResult(fileCheck, 'error', `${file}: 访问失败 (${error.message})`);
+                        log(`${file} 访问失败: ${error.message}`);
+                    });
+            });
+        }
+        
+        // 模型加载测试
+        function testModelLoading() {
+            const modelTest = document.getElementById('modelTest');
+            modelTest.innerHTML = '';
+            
+            // 测试角色模型
+            testModelLoad('./src/models/Assets/role.glb', '角色模型', modelTest);
+            
+            // 测试海岛模型
+            testModelLoad('./src/models/statan/shatan.glb', '海岛模型', modelTest);
+        }
+        
+        function testModelLoad(url, name, container) {
+            addResult(container, 'info', `正在测试 ${name}...`);
+            log(`开始测试 ${name}: ${url}`);
+            
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', url, true);
+            xhr.responseType = 'blob';
+            
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    const size = (xhr.response.size / 1024 / 1024).toFixed(2);
+                    addResult(container, 'success', `${name}: 加载成功 (${size}MB)`);
+                    log(`${name} 加载成功，大小: ${size}MB`);
+                } else {
+                    addResult(container, 'error', `${name}: 加载失败 (${xhr.status})`);
+                    log(`${name} 加载失败: ${xhr.status}`);
+                }
+            };
+            
+            xhr.onerror = function() {
+                addResult(container, 'error', `${name}: 网络错误`);
+                log(`${name} 网络错误`);
+            };
+            
+            xhr.send();
+        }
+        
+        // 添加结果
+        function addResult(container, type, message) {
+            const result = document.createElement('div');
+            result.className = `test-result ${type}`;
+            result.textContent = message;
+            container.appendChild(result);
+        }
+        
+        // 页面跳转
+        function openSimpleTest() {
+            window.open('./simple-test.html', '_blank');
+        }
+        
+        function openMainPage() {
+            window.open('./index.html', '_blank');
+        }
+        
+        function openTestPage() {
+            window.open('./test.html', '_blank');
+        }
+        
+        // 页面加载时自动运行系统检查
+        window.addEventListener('load', () => {
+            log('诊断工具已启动');
+            runSystemCheck();
+        });
+    </script>
+</body>
+</html> 
